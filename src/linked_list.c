@@ -5,7 +5,7 @@
 list_node_t *new_list(int val) {
     list_node_t *node = (list_node_t *) malloc(1 * sizeof(list_node_t));
     node->val = val;
-    node->next = NULL
+    node->next = NULL;
     return node;
 }
 
@@ -21,7 +21,7 @@ list_node_t *list_search(list_node_t *head, int val) {
         if (current->val == val) {
             return current;
         }
-        currrent = current->next;
+        current = current->next;
     }
     return NULL;
 }
