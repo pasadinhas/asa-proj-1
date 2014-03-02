@@ -43,6 +43,12 @@ list_node_t *list_delete(list_node_t *head, int val) {
     return head;
 }
 
+list_node_t *list_pop_beggin(list_node_t *head, int *val) {
+    if (head == NULL) return NULL;
+    (*val) = head->val;
+    return head->next;
+}
+
 void list_destroy(list_node_t *head) {
     list_node_t *delete = head;
     while(head != NULL) {

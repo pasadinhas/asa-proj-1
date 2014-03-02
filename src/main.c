@@ -5,25 +5,34 @@
 
 int main() {
     int n_people, n_shares;
-    int i, p1, p2;
+    int i, p1, p2, counter, biggest;
+    graph_t *graph;
+    list_node_t *scc_size, *list_aux;
 
     scanf("%d", &n_people);
     scanf("%d", &n_shares);
     getchar();
 
-    // TODO: alloc graph
+    graph = new_graph(n_people);
 
     for (i = 0; i < n_shares; i++) {
         scanf("%d", &p1);
         scanf("%d", &p2);
         getchar();
-        // TODO: Insert into graph
+        graph_insert_edge(graph, p1, p2);
     }
-
-    // TODO: Generate the output:
-    //       1st: #(SCC)
-    //       2nd: biggest size(SCC)
-    //       3rd: #(?) 
+ 
+    //graph_print(graph);
+    scc_size = tarjan(graph);
+    for (list_aux = scc_size, counter = 0, biggest = 0; list_aux != NULL; list_aux = list_aux->next) {
+        if (list_aux->val > biggest) {
+            biggest = list_aux->val;
+        }
+        counter++;
+    }
+    printf("%d\n", counter);
+    printf("%d\n", biggest);
+    // TODO: 3rd output: #(?)
 
     return 0;
 }
