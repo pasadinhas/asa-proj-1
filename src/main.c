@@ -5,9 +5,12 @@
 
 int main() {
     int n_people, n_shares;
-    int i, p1, p2, counter, biggest;
-    graph_t *graph;
-    list_node_t *scc_size, *list_aux;
+    int i, p1, p2, disj, biggest, flag;
+    graph_p graph;
+    int_list_list_p scc_list;
+    int_list_list_node_p scc_list_node;
+    int_list_p scc;
+    int_list_node_p scc_el, edge;
 
     scanf("%d", &n_people);
     scanf("%d", &n_shares);
@@ -21,18 +24,32 @@ int main() {
         getchar();
         graph_insert_edge(graph, p1, p2);
     }
- 
-    //graph_print(graph);
-    scc_size = tarjan(graph);
-    for (list_aux = scc_size, counter = 0, biggest = 0; list_aux != NULL; list_aux = list_aux->next) {
-        if (list_aux->val > biggest) {
-            biggest = list_aux->val;
+    
+    scc_list = tarjan(graph);
+    
+    for (scc_list_node = scc_list->head, biggest = 0, disj = 0; scc_list_node != NULL; scc_list_node = scc_list_node->next) {
+        if (scc_list_node->list->size > biggest) {
+            biggest = scc_list_node->list->size;
         }
-        counter++;
+        for (scc = scc_list_node->list, scc_el = scc->head, flag = 1; scc_el != NULL; scc_el = scc_el->next) {
+            for (edge = graph->adj_list[scc_el->val]->head; edge != NULL; edge = edge->next) {
+                if (int_list_search(scc, edge->val) == NULL) {
+                    flag = -1;
+                    break;
+                }
+            }
+            if (flag == -1) {
+                break;
+            }
+        }
+        if (flag != -1) {
+            disj++;
+        }
+        
     }
-    printf("%d\n", counter);
+    printf("%d\n", scc_list->size);
     printf("%d\n", biggest);
-    // TODO: 3rd output: #(?)
+    printf("%d\n", disj);
 
     return 0;
 }

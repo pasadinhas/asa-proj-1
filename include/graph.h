@@ -1,17 +1,17 @@
 #ifndef __graph_h__
 #define __graph_h__
 
-#include "linked_list.h"
+#include "int_list.h"
+#include "int_list_list.h"
 
 typedef struct graph {
     int V, E;
-    list_node_t **adj_list;
-} graph_t;
+    int_list_p *adj_list;
+} graph_t, *graph_p;
 
-graph_t *new_graph(int vertices);
-void graph_insert_edge(graph_t *graph, int from, int to);
-void graph_print(graph_t *graph);
-list_node_t *tarjan(graph_t *graph);
-void tarjanAlgorithm(graph_t *graph, int v, list_node_t **stack, list_node_t **scc, int *tarjan_index, int *tarjan_lowlink, int *index);
+graph_p new_graph(int vertices);
+void graph_insert_edge(graph_p graph, int from, int to);
+int_list_list_p tarjan(graph_p graph);
+void tarjanAlgorithm(graph_p graph, int v, int_list_p stack, int_list_list_p scc_list, int *tarjan_index, int *tarjan_lowlink, int *index);
 
 #endif

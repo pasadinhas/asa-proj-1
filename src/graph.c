@@ -1,38 +1,32 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "graph.h"
-#include "linked_list.h"
+#include "int_list.h"
+#include "int_list_list.h"
 
-graph_t *new_graph(int vertices) {
-    graph_t *graph = (graph_t *) malloc(1 * sizeof(graph_t));
+graph_p new_graph(int vertices) {
+    int i;
+    graph_p graph = (graph_p) malloc(sizeof(graph_t));
     graph->V = vertices;
     graph->E = 0;
-    graph->adj_list = (list_node_t **) malloc(vertices * sizeof(list_node_t *));
+    graph->adj_list = (int_list_p *) malloc(vertices * sizeof(int_list_p));
+    for (i = 0; i < vertices; i++) {
+        graph->adj_list[i] = new_int_list();
+    }
     return graph;
 }
 
-void graph_insert_edge(graph_t *graph, int from, int to) {
-    graph->adj_list[from-1] = list_insert_beggin(graph->adj_list[from-1], to-1);
+void graph_insert_edge(graph_p graph, int from, int to) {
+    int_list_insert(graph->adj_list[from-1], to-1);
     graph->E++;
 }
-#include <stdio.h>
-void graph_print(graph_t *graph) {
-    int i;
-    list_node_t *list;
-    printf("This graph has %d vertices and %d edges.\n", graph->V, graph->E);
-    printf("The connections are:\n");
-    for (i=0; i<graph->V; i++) {
-        list = graph->adj_list[i];
-        while(list != NULL) {
-            printf("  %d -> %d\n", i, list->val);
-            list = list->next;
-        }
-    }
-}
 
-list_node_t *tarjan(graph_t *graph) {
-    list_node_t *stack = NULL;
-    list_node_t *scc = NULL;
+/* source: http://en.algoritmy.net/article/44220/Tarjans-algorithm */
+
+int_list_list_p tarjan(graph_p graph) {
+    int_list_p stack = new_int_list();
+    int_list_list_p scc_list = new_int_list_list();
     int *tarjan_index, *tarjan_lowlink, index = 0;
     int i;
     tarjan_index = (int *) malloc(graph->V * sizeof(int));
@@ -42,36 +36,36 @@ list_node_t *tarjan(graph_t *graph) {
     }
     for (i = 0; i < graph->V; i++) {
         if (tarjan_index[i] == -1) {
-            tarjanAlgorithm(graph, i, &stack, &scc, tarjan_index, tarjan_lowlink, &index);
+            tarjanAlgorithm(graph, i, stack, scc_list, tarjan_index, tarjan_lowlink, &index);
         }
     }
-    return scc;
+    return scc_list;
 }
 
-/* source: http://en.algoritmy.net/article/44220/Tarjans-algorithm */
-
-void tarjanAlgorithm(graph_t *graph, int v, list_node_t **stack, list_node_t **scc, int *tarjan_index, int *tarjan_lowlink, int *index) {
-    list_node_t *node;
-    int val, counter = 0;
+void tarjanAlgorithm(graph_p graph, int v, int_list_p stack, int_list_list_p scc_list, int *tarjan_index, int *tarjan_lowlink, int *index) {
+    int_list_node_p node;
+    int_list_p scc;
+    int val;
     tarjan_index[v] = tarjan_lowlink[v] = (*index);
     (*index)++;
-    (*stack) = list_insert_beggin((*stack), v);
+    int_list_push(stack, v);
     
-    for (node = graph->adj_list[v]; node != NULL; node = node->next) {
+    for (node = graph->adj_list[v]->head; node != NULL; node = node->next) {
 	val = node->val;
 	if (tarjan_index[val] == -1) {
-	    tarjanAlgorithm(graph, val, stack, scc, tarjan_index, tarjan_lowlink, index);
+	    tarjanAlgorithm(graph, val, stack, scc_list, tarjan_index, tarjan_lowlink, index);
 	    tarjan_lowlink[v] = (tarjan_lowlink[v] < tarjan_lowlink[val]) ? tarjan_lowlink[v] : tarjan_lowlink[val];
-	} else if (list_search((*stack), val) != NULL) {
+	} else if (int_list_search(stack, val) != NULL) {
 	    tarjan_lowlink[v] = (tarjan_lowlink[v] < tarjan_index[val]) ? tarjan_lowlink[v] : tarjan_index[val];
 	}
     }
-    
+
     if (tarjan_lowlink[v] == tarjan_index[v]) {
+        scc = new_int_list();
 	do {
-	    (*stack) = list_pop_beggin((*stack), &val);
-	    counter++;
+	    val = int_list_pop(stack);
+	    int_list_insert(scc, val);
 	} while(v != val);
-	(*scc) = list_insert_beggin((*scc), counter);
+	int_list_list_insert(scc_list, scc);
     }
 }

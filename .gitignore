@@ -1,3 +1,7 @@
+# Project specific
+makesinglefile.sh
+single_file_project.c
+
 # Object files
 *.o
 *.ko
