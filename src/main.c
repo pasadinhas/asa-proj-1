@@ -5,7 +5,7 @@
 
 int main() {
     int n_people, n_shares;
-    int i, p1, p2, disj, biggest, flag;
+    int i, p1, p2, disj, biggest, flag, *scc_array;
     graph_p graph;
     int_list_list_p scc_list;
     int_list_list_node_p scc_list_node;
@@ -31,9 +31,13 @@ int main() {
         if (scc_list_node->list->size > biggest) {
             biggest = scc_list_node->list->size;
         }
+        scc_array = calloc(graph->V, sizeof(int));
+        for (scc = scc_list_node->list, scc_el = scc->head, flag = 1; scc_el != NULL; scc_el = scc_el->next) {
+            scc_array[scc_el->val] = 1;
+        }
         for (scc = scc_list_node->list, scc_el = scc->head, flag = 1; scc_el != NULL; scc_el = scc_el->next) {
             for (edge = graph->adj_list[scc_el->val]->head; edge != NULL; edge = edge->next) {
-                if (int_list_search(scc, edge->val) == NULL) {
+                if (scc_array[edge->val] == 0) {
                     flag = -1;
                     break;
                 }
@@ -45,6 +49,7 @@ int main() {
         if (flag != -1) {
             disj++;
         }
+        free(scc_array);
         
     }
     printf("%d\n", scc_list->size);
