@@ -1,60 +1,117 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <list>
+#include <vector>
+#include <stack>
 
-#include "graph.h"
+typedef std::vector< std::list<int> > graph;
+typedef std::list<int>::iterator iter;
+
+int output1 = 0, output2 = 0, output3 = 0;
+
+namespace DFS { enum { WHITE=-1, GREY, BLACK }; }
+
+void DFS_visit(graph &g, int v, int color[], std::stack<int> &stack) {
+    color[v] = DFS::GREY;
+    for (iter vIter = g[v].begin(); vIter != g[v].end(); vIter++) {
+        int u = *vIter;
+        if (color[u] == DFS::WHITE) {
+            DFS_visit(g, u, color, stack);
+        }
+    }
+    color[v] = DFS::BLACK;
+    stack.push(v);
+}
+
+int DFS_visit2(graph &g, int u, int color[], bool &out_edge) {
+    int size = 1;
+    color[u] = output1;
+    for (iter vIter = g[u].begin(); vIter != g[u].end(); vIter++) {
+        int v = *vIter;
+        if (color[v] == DFS::WHITE) {
+             size += DFS_visit2(g, v, color, out_edge);
+        } else if (color[v] != output1) {
+            out_edge = true;
+        }
+    }
+    return size;
+}
+
+void create_transpose_graph(graph &g, graph &t) {
+    for (int i = 0; i < (int) g.size(); i++) {
+        for (iter vIter = g[i].begin(); vIter != g[i].end(); vIter++) {
+            int u = *vIter;
+            t[u].push_back(i);
+        }
+    }
+}
+
+/* this function recieves a graph and solves the project! */
+void solve(graph &g) {
+    int V = g.size();
+    int color[V], i;
+    std::stack<int> stack;
+    
+    graph t(V);
+    create_transpose_graph(g, t);
+    
+    for (i = 0; i < V; i++) { color[i] = DFS::WHITE; }
+    
+    for (i = 0; i < V; i++) {
+        if (color[i] == DFS::WHITE) {
+            DFS_visit(t, i, color, stack);
+        }
+    }
+    for (i = 0; i < V; i++) { color[i] = DFS::WHITE; }
+
+    while (stack.size() > 0) {
+        int u = stack.top();
+        stack.pop();
+        if (color[u] == DFS::WHITE) {
+            bool out_edge = false;
+            int size = DFS_visit2(g, u, color, out_edge);
+            if (!out_edge) output3++;
+            output2 = std::max(size, output2);
+            output1++;
+        }
+    }
+}
 
 int main() {
-    int n_people, n_shares;
-    int i, p1, p2, disj, biggest, flag, *scc_array;
-    graph_p graph;
-    int_list_list_p scc_list;
-    int_list_list_node_p scc_list_node;
-    int_list_p scc;
-    int_list_node_p scc_el, edge;
-
-    scanf("%d", &n_people);
-    scanf("%d", &n_shares);
+    int V, E;
+    int v1, v2;
+    scanf("%d", &V);
+    scanf("%d", &E);
     getchar();
 
-    graph = new_graph(n_people);
+    graph g(V);
 
-    for (i = 0; i < n_shares; i++) {
-        scanf("%d", &p1);
-        scanf("%d", &p2);
+    for (int i = 0; i < E; i++) {
+        scanf("%d", &v1);
+        scanf("%d", &v2);
         getchar();
-        graph_insert_edge(graph, p1, p2);
+        g[v1-1].push_back(v2-1);
     }
     
-    scc_list = tarjan(graph);
-    
-    for (scc_list_node = scc_list->head, biggest = 0, disj = 0; scc_list_node != NULL; scc_list_node = scc_list_node->next) {
-        if (scc_list_node->list->size > biggest) {
-            biggest = scc_list_node->list->size;
-        }
-        scc_array = calloc(graph->V, sizeof(int));
-        for (scc = scc_list_node->list, scc_el = scc->head, flag = 1; scc_el != NULL; scc_el = scc_el->next) {
-            scc_array[scc_el->val] = 1;
-        }
-        for (scc = scc_list_node->list, scc_el = scc->head, flag = 1; scc_el != NULL; scc_el = scc_el->next) {
-            for (edge = graph->adj_list[scc_el->val]->head; edge != NULL; edge = edge->next) {
-                if (scc_array[edge->val] == 0) {
-                    flag = -1;
-                    break;
-                }
-            }
-            if (flag == -1) {
-                break;
-            }
-        }
-        if (flag != -1) {
-            disj++;
-        }
-        free(scc_array);
-        
-    }
-    printf("%d\n", scc_list->size);
-    printf("%d\n", biggest);
-    printf("%d\n", disj);
+    solve(g);
+
+    printf("%d\n%d\n%d\n", output1, output2, output3);
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
