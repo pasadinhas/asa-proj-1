@@ -55,14 +55,13 @@ void solve(graph &g) {
     create_transpose_graph(g, t);
     
     for (i = 0; i < V; i++) { color[i] = DFS::WHITE; }
-    
     for (i = 0; i < V; i++) {
         if (color[i] == DFS::WHITE) {
             DFS_visit(t, i, color, stack);
         }
     }
-    for (i = 0; i < V; i++) { color[i] = DFS::WHITE; }
 
+    for (i = 0; i < V; i++) { color[i] = DFS::WHITE; }
     while (stack.size() > 0) {
         int u = stack.top();
         stack.pop();
@@ -98,20 +97,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
