@@ -12,24 +12,20 @@ int output1 = 0, output2 = 0, output3 = 0;
 
 void DFS_visit(graph &g, int v, int color[], std::stack<int> &stack) {
     color[v] = !WHITE;
-    for (iter vIter = g[v].begin(); vIter != g[v].end(); vIter++) {
-        int u = *vIter;
-        if (color[u] == WHITE) {
-            DFS_visit(g, u, color, stack);
-        }
-    }
+    for (iter vIter = g[v].begin(); vIter != g[v].end(); vIter++)
+        if (color[*vIter] == WHITE)
+            DFS_visit(g, *vIter, color, stack);
     stack.push(v);
 }
 
 int DFS_visit2(graph &g, int u, int color[], bool &out_edge) {
     int size = 1;
     color[u] = output1;
-    for (iter vIter = g[u].begin(); vIter != g[u].end(); vIter++) {
+    for (iter vIter = g[u].begin(); vIter != g[u].end(); vIter++)
         if (color[*vIter] == WHITE) 
             size += DFS_visit2(g, *vIter, color, out_edge);
         else if (color[*vIter] != output1) 
             out_edge = true;
-    }
     return size;
 }
 
@@ -47,14 +43,12 @@ void solve(graph &g) {
     graph t(V);
     create_transpose_graph(g, t);
     
-    for (i = 0; i < V; i++) { color[i] = WHITE; }
-    for (i = 0; i < V; i++) {
-        if (color[i] == WHITE) {
+    for (i = 0; i < V; i++) color[i] = WHITE;
+    for (i = 0; i < V; i++)
+        if (color[i] == WHITE)
             DFS_visit(t, i, color, stack);
-        }
-    }
 
-    for (i = 0; i < V; i++) { color[i] = WHITE; }
+    for (i = 0; i < V; i++) color[i] = WHITE;
     while (stack.size() > 0) {
         int u = stack.top();
         stack.pop();
